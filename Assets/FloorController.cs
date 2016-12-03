@@ -15,12 +15,16 @@ public class FloorController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        transform.Translate(0, this.scrollSpeed, 0);
+        if (LifeController.isEnd)
+        {
+            this.scrollSpeed *= 0.99f;
+        }
 
+        transform.Translate(0, this.scrollSpeed, 0);
         if (transform.position.z < this.deadLine)
         {
-
-            transform.position = new Vector3(0, 0,this.startLine);
+            transform.position = new Vector3(0, 0, this.startLine);
         }
+
     }
 }

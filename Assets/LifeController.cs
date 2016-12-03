@@ -8,10 +8,13 @@ public class LifeController : MonoBehaviour {
     private GameObject life2;
     private GameObject life3;
     private GameObject gameResultText;
+    private GameObject bgm;
+    private AudioSource[] GameBGM;
     public static int lifeCount =3;
     public static float gameTime = 0f;
-    public static float clearTime = 300f;
+    public static float clearTime = 30f;
     public static bool isEnd = false;
+    private int gameoverCount = 0;
 
     // Use this for initialization
     void Start () {
@@ -20,7 +23,9 @@ public class LifeController : MonoBehaviour {
         this.life2 = GameObject.Find("Life2");
         this.life3 = GameObject.Find("Life3");
         this.gameResultText = GameObject.Find("GameResultText");
-        
+        this.bgm = GameObject.Find("BGM");
+        GameBGM = GetComponents<AudioSource>();
+
     }
 	
 	// Update is called once per frame
@@ -36,16 +41,23 @@ public class LifeController : MonoBehaviour {
         {
             life2.gameObject.SetActive(false);
         }
-        if (lifeCount < 1)
+        if (lifeCount < 1 && this.gameoverCount < 1)
         {
             isEnd = true;
             life1.gameObject.SetActive(false);
+            bgm.GetComponent<AudioSource>().Stop();
+            GameBGM[0].Play(22050);
             this.gameResultText.GetComponent<Text>().text = "GAME OVER!!";
+            this.gameoverCount++;
+
         }
-        if(gameTime > clearTime)
+        if(gameTime > clearTime && this.gameoverCount < 1)
         {
             isEnd = true;
-            this.gameResultText.GetComponent<Text>().text = "Mission Complete!!" + "\n" + "スコア "+ Mathf.Floor(ScoreText.scorePt); 
+            bgm.GetComponent<AudioSource>().Stop();
+            GameBGM[1].Play(22050);
+            this.gameoverCount++;
+            this.gameResultText.GetComponent<Text>().text = "Mission Complete!!" + "\n" + "スコア "+ Mathf.Floor(ScoreText.scorePt);
         }
 
     }   

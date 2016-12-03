@@ -12,8 +12,10 @@ public class MobController : MonoBehaviour
     private float upDistance;
     private float upSpeed;
     private float rotatespeed = 2f;
+    private float rotatereturn = 0f;
     private bool uping = false;
     private bool jumping = false;
+    private bool dropDown = false;
     public static bool mobActive = true;
 
 
@@ -30,7 +32,15 @@ public class MobController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        this.transform.Translate(0, 0, Time.deltaTime * forwardForce);
+        if(this.dropDown == false)
+        {
+            this.transform.Translate(0, 0, Time.deltaTime * forwardForce);
+
+        }else if (this.dropDown)
+        {
+            this.transform.Translate(0, 0, 0);
+        }
+        
 
         if (this.jumping)
         {
@@ -40,12 +50,16 @@ public class MobController : MonoBehaviour
 
         if (this.uping)
         {
+            this.rotatereturn += rotatespeed;
             this.transform.Rotate(0, rotatespeed, 0);
             this.mobRigidbody.isKinematic = true;
             this.transform.Translate(0, Time.deltaTime * upSpeed, 0);
-        }else
+            this.dropDown = true;
+        }
+        else
         {
             this.mobRigidbody.isKinematic = false;
+
         }
 
         if(mobActive == false)
@@ -76,28 +90,30 @@ public class MobController : MonoBehaviour
             this.uping = false;
             this.gameObject.SetActive(false);
             MobGenerator.generate = true;
-            
-
         }
 
         if (other.gameObject.tag == "Floor")
         {
             this.jumping = true;
+            this.transform.Rotate(0, -this.rotatereturn, 0);
+            this.rotatereturn = 0;
+            this.dropDown = false;
         }
 
     }
 
     void OnTriggerEnter(Collider triggerEnter)
     {
-        if(triggerEnter.gameObject.tag == "DeadLine")
+        if(LifeController.isEnd == false)
         {
-            this.gameObject.SetActive(false);
-            MobGenerator.generate = true;
-            
+            if (triggerEnter.gameObject.tag == "DeadLine")
+            {
+                this.gameObject.SetActive(false);
+                MobGenerator.generate = true;
+            }
         }
-        
+    
     }
-
 
 }
 
