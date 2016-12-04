@@ -2,7 +2,8 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class CharactorTextContoller : MonoBehaviour {
+public class CharactorTextContoller : MonoBehaviour
+{
 
     public string[] scenarios;
     public string[] getScenarios;
@@ -17,6 +18,7 @@ public class CharactorTextContoller : MonoBehaviour {
     float intervalForCharacterDisplay = 0.05f;  // 1文字の表示にかかる時間
 
     private int currentLine = 0;
+    private int lastLine = 0;
     private string currentText = string.Empty;  // 現在の文字列
     private float timeUntilDisplay = 0;     // 表示にかかる時間
     private float timeElapsed = 1;          // 文字列の表示を開始した時間
@@ -54,13 +56,13 @@ public class CharactorTextContoller : MonoBehaviour {
             {
                 SetNextLine();
             }
-            else if(LifeController.gameTime < LifeController.clearTime && this.gameoverCount < 1)
+            else if (LifeController.gameTime < LifeController.clearTime && this.gameoverCount < 1)
             {
                 minusTextnum = 2;
                 GetMinusLine();
                 UFOController.minusPoint = false;
             }
-            
+
             this.delta = 0;
         }
         else
@@ -71,7 +73,7 @@ public class CharactorTextContoller : MonoBehaviour {
 
         if (this.delta >= this.nextTime && stop == false)
         {
-            for(int i = 0; i < MobText.Length; i++)
+            for (int i = 0; i < MobText.Length; i++)
             {
                 if (MobText[i])
                 {
@@ -85,7 +87,7 @@ public class CharactorTextContoller : MonoBehaviour {
 
         if (sebutton)
         {
-            this.seDeltaTime += Time.deltaTime;          
+            this.seDeltaTime += Time.deltaTime;
 
             if (this.seDeltaTime >= this.seTime)
             {
@@ -133,7 +135,8 @@ public class CharactorTextContoller : MonoBehaviour {
             currentText = scenarios[currentLine];
             currentLine = Random.Range(1, 8);
             startText = false;
-        }else
+        }
+        else
         {
             if (LifeController.gameTime >= alertTime && LifeController.gameTime < LifeController.clearTime)
             {
@@ -153,6 +156,7 @@ public class CharactorTextContoller : MonoBehaviour {
             {
                 currentText = scenarios[currentLine];
                 MobText[currentLine] = true;
+                lastLine = currentLine;
                 currentLine = Random.Range(1, 8);
                 this.GetComponent<AudioSource>().Play();
                 this.sebutton = true;
@@ -169,7 +173,7 @@ public class CharactorTextContoller : MonoBehaviour {
 
     void GetBonusLine()
     {
-        currentText = getScenarios[currentLine];
+        currentText = getScenarios[lastLine];
 
         // 想定表示時間と現在の時刻をキャッシュ
         timeUntilDisplay = currentText.Length * intervalForCharacterDisplay;

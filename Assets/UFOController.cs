@@ -35,17 +35,6 @@ public class UFOController : MonoBehaviour {
         if (LifeController.isEnd)
         {
             this.turnForce *= coefficient;   //すぐに止まらないように慣性をつけた動きにするため。
-            if (Input.GetMouseButtonDown(0))
-            {
-                SceneManager.LoadScene("GameScene");
-                LifeController.isEnd = false;
-                ScoreText.scorePt = 0;
-                LifeController.lifeCount = 3;
-                LifeController.gameTime = 0f;
-                bunusPoint = false;
-                minusPoint = false;
-            }
-
         }
        
 
@@ -177,7 +166,7 @@ public class UFOController : MonoBehaviour {
         {
             if(CharactorTextContoller.MobText[5] && mob.gameObject.tag == "Bear" || CharactorTextContoller.MobText[6] && mob.gameObject.tag == "Ambulance")
             {
-                ScoreText.scorePt += 2000 * comboBonus;
+                ScoreText.scorePt += 5000 * comboBonus;
                 bunusPoint = true;
                 this.comboBonus++;
                 return;

@@ -2,14 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class MobGenerator : MonoBehaviour {
+public class MobGenerator : MonoBehaviour
+{
 
     public GameObject[] Human;
     public GameObject[] Animal;
     public GameObject[] Car;
     public float[] mobxPos;
     public float[] carxPos;
-    private int startpos = 0;
+    private int startpos = -50;
     private int stoppos = 160;
     private int generatepos = 100;
     public static bool generate = false;
@@ -18,11 +19,12 @@ public class MobGenerator : MonoBehaviour {
     private List<GameObject> list_Car = new List<GameObject>();
     private GameObject item_Human;
     private GameObject item_Animal;
-    private GameObject item_Car; 
+    private GameObject item_Car;
 
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
         for (int i = 0; i < Human.Length; i++)
         {
@@ -67,11 +69,11 @@ public class MobGenerator : MonoBehaviour {
             if (1 <= item && item <= 6)
             {
                 int num = Random.Range(0, list_Human.Count);
-                if(list_Human[num].gameObject.activeSelf == false)
+                if (list_Human[num].gameObject.activeSelf == false)
                 {
                     list_Human[num].transform.position = new Vector3(mobxPos[mobxPosNum], list_Human[num].transform.position.y, i + offsetZ);
                     list_Human[num].SetActive(true);
-                }              
+                }
             }
             else if (7 <= item && item <= 8)
             {
@@ -93,9 +95,10 @@ public class MobGenerator : MonoBehaviour {
             }
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
 
         if (generate)
         {
@@ -110,7 +113,8 @@ public class MobGenerator : MonoBehaviour {
                 {
                     list_Human[num].transform.position = new Vector3(mobxPos[mobxPosNum], list_Human[num].transform.position.y, generatepos + offsetZ);
                     list_Human[num].SetActive(true);
-                }else
+                }
+                else
                 {
                     return;
                 }
@@ -123,7 +127,8 @@ public class MobGenerator : MonoBehaviour {
                 {
                     list_Animal[num].transform.position = new Vector3(mobxPos[mobxPosNum], list_Human[num].transform.position.y, generatepos + offsetZ);
                     list_Animal[num].SetActive(true);
-                }else
+                }
+                else
                 {
                     return;
                 }
@@ -145,8 +150,8 @@ public class MobGenerator : MonoBehaviour {
 
             generate = false;
         }
-	
-	}
+
+    }
 
 
 
