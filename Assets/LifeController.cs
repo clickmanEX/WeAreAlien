@@ -4,19 +4,20 @@ using UnityEngine.UI;
 
 public class LifeController : MonoBehaviour {
 
-    private GameObject life1;
-    private GameObject life2;
-    private GameObject life3;
-    private GameObject gameResultText;
-    private GameObject restart;
-    private GameObject title;
-    private GameObject bgm;
-    private AudioSource[] GameBGM;
-    public static int lifeCount =3;
-    public static float gameTime = 0f;
-    public static float clearTime = 180f;
-    public static bool isEnd = false;
-    private int gameoverCount = 0;
+    private GameObject life1;   //ライフバー画像
+    private GameObject life2;   //ライフバー画像
+    private GameObject life3;   //ライフバー画像
+    private GameObject gameResultText;      //ゲーム終了後に表示するテキスト
+    private GameObject restart;         //ゲーム終了後に表示するリスタートボタン
+    private GameObject title;           //ゲーム終了後に表示するタイトルボタン
+    private GameObject bgm;             //ゲーム中に再生するBGM
+    private AudioSource[] GameEndBGM;      //ゲーム終了後に再生するBGMを入れる配列
+    public static int lifeCount =3;     //ライフを管理する変数。GameResultController・UFOControllerにも使用。
+    public static float gameTime = 0f;  //ゲームの経過時間測定用float型変数。 CharactorTextContollerにも使用。
+    public static float clearTime = 180f;   //ゲームの制限時間用float型変数。CharactorTextContollerにも使用。
+    public static bool isEnd = false;       //ゲーム終了を管理するブール変数。UFOController・FloorController・MobController・CharactorTextContoller・GameResultControllerにも使用。
+    private int gameoverCount = 0;      //何回もゲームオーバーにならないように管理するint型変数
+    public HighScoreText highScoreText; 
 
     // Use this for initialization
     void Start () {
@@ -30,7 +31,7 @@ public class LifeController : MonoBehaviour {
         this.bgm = GameObject.Find("BGM");
         this.restart.gameObject.SetActive(false);
         this.title.gameObject.SetActive(false);
-        GameBGM = GetComponents<AudioSource>();
+        GameEndBGM = GetComponents<AudioSource>();
 
     }
 	
@@ -39,33 +40,48 @@ public class LifeController : MonoBehaviour {
 
         gameTime += Time.deltaTime;
 
-        if (2 <= lifeCount && lifeCount < 3)
+        //lifeCountの数に応じてライフバーの表示を減らす処理
+        if (lifeCount < 3)
         {
             life3.gameObject.SetActive(false);
         }
-        if (1 <= lifeCount && lifeCount < 2)
+        if (lifeCount < 2)
         {
             life2.gameObject.SetActive(false);
         }
+
+        //lifeCountが0になったらゲームオーバーテキスト・リスタートボタン・タイトルボタンを表示する。
         if (lifeCount < 1 && this.gameoverCount < 1)
         {
             isEnd = true;
             life1.gameObject.SetActive(false);
             bgm.GetComponent<AudioSource>().Stop();
-            GameBGM[0].Play(22050);
+            GameEndBGM[0].PlayDelayed(0.7f);
             this.gameResultText.GetComponent<Text>().text = "GAME OVER!!";
             this.restart.gameObject.SetActive(true);
             this.title.gameObject.SetActive(true);
             this.gameoverCount++;
 
         }
-        if(gameTime > clearTime && this.gameoverCount < 1)
+
+        //制限時間を超えたらゲームクリアテキスト・リスタートボタン・タイトルボタンを表示する。
+        if (gameTime > clearTime && this.gameoverCount < 1)
         {
             isEnd = true;
             bgm.GetComponent<AudioSource>().Stop();
-            GameBGM[1].Play(22050);
+            GameEndBGM[1].Play();
             this.gameoverCount++;
-            this.gameResultText.GetComponent<Text>().text = "Mission Complete!!" + "\n" + "スコア "+ Mathf.Floor(ScoreText.scorePt);
+
+            //ハイスコアを更新したらハイスコア更新専用メッセージを表示する。
+            if (highScoreText.highScoreUpdate)
+            {
+                this.gameResultText.GetComponent<Text>().text = "Mission Complete!!" + "\n" + "Congratulations!" + "\n" + "New Record" + "\n" + "Score " + Mathf.Floor(ScoreText.scorePt);
+
+            }else
+            {
+                this.gameResultText.GetComponent<Text>().text = "Mission Complete!!" + "\n" + "Score " + Mathf.Floor(ScoreText.scorePt);
+
+            }
             this.restart.gameObject.SetActive(true);
             this.title.gameObject.SetActive(true);
         }

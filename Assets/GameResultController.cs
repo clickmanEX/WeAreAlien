@@ -4,8 +4,10 @@ using UnityEngine.SceneManagement;
 
 public class GameResultController : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
+    private string highScorekey = "High Score";
+
+    // Use this for initialization
+    void Start () {
 	
 	}
 	
@@ -20,6 +22,7 @@ public class GameResultController : MonoBehaviour {
         Invoke("LoadTitle", 0.8f);        
     }
 
+    //ゲームに関係するstatic変数を初期値にリセット。
     public void LoadTitle()
     {
         LifeController.isEnd = false;
@@ -37,6 +40,7 @@ public class GameResultController : MonoBehaviour {
         Invoke("LoadRestart", 0.8f);
     }
 
+    //ゲームに関係するstatic変数を初期値にリセット
     public void LoadRestart()
     {
         LifeController.isEnd = false;
@@ -46,6 +50,11 @@ public class GameResultController : MonoBehaviour {
         UFOController.bunusPoint = false;
         UFOController.minusPoint = false;
         SceneManager.LoadScene("GameScene");
+    }
+
+    public void HighScoreDelete()
+    {
+        PlayerPrefs.DeleteKey(highScorekey);
     }
 
 }
