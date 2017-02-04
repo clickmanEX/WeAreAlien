@@ -10,8 +10,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: clickman
-  productName: "\u30EF\u30EC\u30EF\u30EC\u30CF\u30A6\u30C1\u30E5\u30A6\u30B8\u30F3\u30C0\uFF01\uFF01"
+  companyName: Jun
+  productName: OriginalGame_WeareAlien
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenStyle: 0
@@ -93,14 +93,14 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleIdentifier: com.clickman.OriginalGame_WeareAlien
-  bundleVersion: 1.1
+  bundleIdentifier: com.Jun.OriginalGame_WeareAlien
+  bundleVersion: 1.0
   preloadedAssets: []
   metroEnableIndependentInputSource: 0
   xboxOneDisableKinectGpuReservation: 0
   singlePassStereoRendering: 0
   protectGraphicsMemory: 0
-  AndroidBundleVersionCode: 2
+  AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 9
   AndroidPreferredInstallLocation: 1
   aotOptions: 
@@ -164,8 +164,8 @@ PlayerSettings:
   AndroidTargetDevice: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: "D:/\u30D7\u30ED\u30B0\u30E9\u30DF\u30F3\u30B0/Unity Projects/OriginalGame_WeareAlien/Keystore/WeAreAlien.keystore"
-  AndroidKeyaliasName: wearealien
+  AndroidKeystoreName: 
+  AndroidKeyaliasName: 
   AndroidTVCompatibility: 1
   AndroidIsGame: 1
   androidEnableBanner: 1
@@ -349,7 +349,6 @@ PlayerSettings:
     14: MOBILE_INPUT
     17: MOBILE_INPUT
     20: MOBILE_INPUT
-    22: MOBILE_INPUT
   metroPackageName: OriginalGame_WeareAlien
   metroPackageVersion: 
   metroCertificatePath: 
