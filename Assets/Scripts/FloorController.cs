@@ -1,19 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class FloorController : MonoBehaviour {
+public class FloorController : MonoBehaviour
+{
 
     public float scrollSpeed;
     private float deadLine = -100f;
     private float startLine = 200f;
 
     // Use this for initialization
-    void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
 
         if (LifeController.isEnd)
         {

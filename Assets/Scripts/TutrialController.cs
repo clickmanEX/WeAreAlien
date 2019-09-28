@@ -2,7 +2,8 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class TutrialController : MonoBehaviour {
+public class TutrialController : MonoBehaviour
+{
 
     private GameObject page1;
     private GameObject page2;
@@ -11,7 +12,8 @@ public class TutrialController : MonoBehaviour {
 
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
         this.page1 = GameObject.Find("Page1");
         this.page2 = GameObject.Find("Page2");
@@ -21,16 +23,17 @@ public class TutrialController : MonoBehaviour {
         this.back.gameObject.SetActive(false);
 
     }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     public void TitleButton()
     {
         this.GetComponent<AudioSource>().Play();
-        Invoke("LoadTitle", 0.8f);        
+        Invoke("LoadTitle", 0.8f);
     }
 
     public void LoadTitle()

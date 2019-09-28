@@ -2,23 +2,26 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class GameStart : MonoBehaviour {
+public class GameStart : MonoBehaviour
+{
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    // Use this for initialization
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     public void GameStartButton()
     {
         this.GetComponent<AudioSource>().Play();
         Invoke("LoadGameStart", 0.8f);
-        
+
     }
 
     public void LoadGameStart()
@@ -31,7 +34,7 @@ public class GameStart : MonoBehaviour {
     {
         this.GetComponent<AudioSource>().Play();
         Invoke("LoadTutrial", 0.8f);
-          
+
     }
 
     public void LoadTutrial()
@@ -43,18 +46,18 @@ public class GameStart : MonoBehaviour {
     {
         this.GetComponent<AudioSource>().Play();
         Invoke("LoadGameEnd", 0.8f);
-        
+
     }
 
     public void LoadGameEnd()
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
-        #elif UNITY_WEBPLAYER
+#elif UNITY_WEBPLAYER
     	Application.OpenURL("http://www.yahoo.co.jp/");
-        #else
+#else
     	Application.Quit();
-        #endif
+#endif
     }
 
 }

@@ -2,7 +2,8 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class LifeController : MonoBehaviour {
+public class LifeController : MonoBehaviour
+{
 
     private GameObject life1;
     private GameObject life2;
@@ -12,14 +13,15 @@ public class LifeController : MonoBehaviour {
     private GameObject title;
     private GameObject bgm;
     private AudioSource[] GameBGM;
-    public static int lifeCount =3;
+    public static int lifeCount = 3;
     public static float gameTime = 0f;
     public static float clearTime = 180f;
     public static bool isEnd = false;
     private int gameoverCount = 0;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
         this.life1 = GameObject.Find("Life1");
         this.life2 = GameObject.Find("Life2");
@@ -33,9 +35,10 @@ public class LifeController : MonoBehaviour {
         GameBGM = GetComponents<AudioSource>();
 
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
 
         gameTime += Time.deltaTime;
 
@@ -59,16 +62,16 @@ public class LifeController : MonoBehaviour {
             this.gameoverCount++;
 
         }
-        if(gameTime > clearTime && this.gameoverCount < 1)
+        if (gameTime > clearTime && this.gameoverCount < 1)
         {
             isEnd = true;
             bgm.GetComponent<AudioSource>().Stop();
             GameBGM[1].Play(22050);
             this.gameoverCount++;
-            this.gameResultText.GetComponent<Text>().text = "Mission Complete!!" + "\n" + "スコア "+ Mathf.Floor(ScoreText.scorePt);
+            this.gameResultText.GetComponent<Text>().text = "Mission Complete!!" + "\n" + "スコア " + Mathf.Floor(ScoreText.scorePt);
             this.restart.gameObject.SetActive(true);
             this.title.gameObject.SetActive(true);
         }
 
-    }   
+    }
 }

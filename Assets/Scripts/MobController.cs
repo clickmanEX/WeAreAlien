@@ -32,15 +32,16 @@ public class MobController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(this.dropDown == false)
+        if (this.dropDown == false)
         {
             this.transform.Translate(0, 0, Time.deltaTime * forwardForce);
 
-        }else if (this.dropDown)
+        }
+        else if (this.dropDown)
         {
             this.transform.Translate(0, 0, 0);
         }
-        
+
 
         if (this.jumping)
         {
@@ -62,7 +63,7 @@ public class MobController : MonoBehaviour
 
         }
 
-        if(mobActive == false)
+        if (mobActive == false)
         {
             this.gameObject.SetActive(false);
         }
@@ -104,7 +105,7 @@ public class MobController : MonoBehaviour
 
     void OnTriggerEnter(Collider triggerEnter)
     {
-        if(LifeController.isEnd == false)
+        if (LifeController.isEnd == false)
         {
             if (triggerEnter.gameObject.tag == "DeadLine")
             {
@@ -112,7 +113,7 @@ public class MobController : MonoBehaviour
                 MobGenerator.generate = true;
             }
         }
-    
+
     }
 
 }

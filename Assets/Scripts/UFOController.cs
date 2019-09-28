@@ -3,7 +3,8 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UFOController : MonoBehaviour {
+public class UFOController : MonoBehaviour
+{
 
     private Rigidbody myRigidbody;
     private float maxSpeed = 50.0f;
@@ -22,21 +23,23 @@ public class UFOController : MonoBehaviour {
     public static bool minusPoint = false;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
         this.myRigidbody = GetComponent<Rigidbody>();
         ufoSE = GetComponents<AudioSource>();
 
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
 
         if (LifeController.isEnd)
         {
             this.turnForce *= coefficient;   //すぐに止まらないように慣性をつけた動きにするため。
         }
-       
+
 
         if (this.stop == false)     //28~52行目まで、上下左右の動きをつける。スペースキーを押していない間は動けるように条件をつけた。
         {
@@ -75,15 +78,15 @@ public class UFOController : MonoBehaviour {
 
         }
         else         //スペースキー押してる間はモブを吸い込むため、UFOは停止する。
-        {           
-                this.myRigidbody.velocity = new Vector3(0, 0, 0);
+        {
+            this.myRigidbody.velocity = new Vector3(0, 0, 0);
         }
 
         if (Input.GetKey(KeyCode.Space) || isCatchButtonDown)    //スペースキー押してる間は停止、スペースキーを離すと動けるように。
         {
             this.stop = true;
             ScoreText.scorePt -= 500 / minusTime * Time.deltaTime;
-            
+
         }
         else
         {
@@ -96,11 +99,11 @@ public class UFOController : MonoBehaviour {
         {
             isCatchButtonTrueCount++;
 
-            if(isCatchButtonTrueCount <= 1)
+            if (isCatchButtonTrueCount <= 1)
             {
                 ufoSE[0].Play();
             }
-           
+
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -127,7 +130,7 @@ public class UFOController : MonoBehaviour {
                         this.myRigidbody.AddForce(-this.turnForce, 0, 0);
                     }
 
-                    if (touch.phase == TouchPhase.Stationary && worldPos.x > 0 )
+                    if (touch.phase == TouchPhase.Stationary && worldPos.x > 0)
                     {
                         this.myRigidbody.AddForce(this.turnForce, 0, 0);
                     }
@@ -146,10 +149,10 @@ public class UFOController : MonoBehaviour {
         if (mob.gameObject.tag == "Human" || mob.gameObject.tag == "Army" || mob.gameObject.tag == "Chef"
             || mob.gameObject.tag == "Scientist" || mob.gameObject.tag == "Alien"
             || mob.gameObject.tag == "Cat" || mob.gameObject.tag == "Dog")
-        {            
+        {
 
-            if(CharactorTextContoller.MobText[1] && mob.gameObject.tag == "Army" || CharactorTextContoller.MobText[2] && mob.gameObject.tag == "Scientist" 
-               || CharactorTextContoller.MobText[3] && mob.gameObject.tag == "Chef" || CharactorTextContoller.MobText[4] && mob.gameObject.tag == "Cat" 
+            if (CharactorTextContoller.MobText[1] && mob.gameObject.tag == "Army" || CharactorTextContoller.MobText[2] && mob.gameObject.tag == "Scientist"
+               || CharactorTextContoller.MobText[3] && mob.gameObject.tag == "Chef" || CharactorTextContoller.MobText[4] && mob.gameObject.tag == "Cat"
                || CharactorTextContoller.MobText[4] && mob.gameObject.tag == "Dog" || CharactorTextContoller.MobText[7] && mob.gameObject.tag == "Alien")
             {
                 ScoreText.scorePt += 2000 * comboBonus;
@@ -164,7 +167,7 @@ public class UFOController : MonoBehaviour {
 
         if (mob.gameObject.tag == "Car" || mob.gameObject.tag == "Ambulance" || mob.gameObject.tag == "Bear")
         {
-            if(CharactorTextContoller.MobText[5] && mob.gameObject.tag == "Bear" || CharactorTextContoller.MobText[6] && mob.gameObject.tag == "Ambulance")
+            if (CharactorTextContoller.MobText[5] && mob.gameObject.tag == "Bear" || CharactorTextContoller.MobText[6] && mob.gameObject.tag == "Ambulance")
             {
                 ScoreText.scorePt += 5000 * comboBonus;
                 bunusPoint = true;
@@ -179,7 +182,7 @@ public class UFOController : MonoBehaviour {
             ufoSE[1].Play();
         }
 
-        if(mob.gameObject.tag == "BillRight")
+        if (mob.gameObject.tag == "BillRight")
         {
             ScoreText.scorePt -= 10000;
             LifeController.lifeCount -= 1;
