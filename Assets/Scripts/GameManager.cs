@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     AudioClip loseMusic;
     [SerializeField]
+    GameObject buttonPanel;
+    [SerializeField]
     GameObject gameEndPanel;
     [SerializeField]
     Text gameResultText;
@@ -81,10 +83,10 @@ public class GameManager : MonoBehaviour
                 CharactorTextContoller.Instance.SetPlayBeforeEndText();
                 break;
             case PHASE.GAME_CLEAR:
-                audioSource.Stop();
                 audioSource.loop = false;
                 audioSource.clip = winMusic;
-                audioSource.Play(22050);
+                audioSource.PlayDelayed(0.5f);
+                buttonPanel.gameObject.SetActive(false);
                 gameEndPanel.SetActive(true);
                 if (ScoreManager.Instance.IsUpdateHighScore())
                 {
@@ -98,16 +100,17 @@ public class GameManager : MonoBehaviour
                 CharactorTextContoller.Instance.SetGameClearText();
                 break;
             case PHASE.GAME_OVER:
-                audioSource.Stop();
                 audioSource.loop = false;
                 audioSource.clip = loseMusic;
-                audioSource.Play(22050);
+                audioSource.PlayDelayed(0.5f);
+                buttonPanel.gameObject.SetActive(false);
                 gameEndPanel.SetActive(true);
                 gameResultText.text = "GAME OVER!!";
                 CharactorTextContoller.Instance.SetGameOverText();
                 break;
         }
     }
+
 
     // Update is called once per frame
     void Update()
