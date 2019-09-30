@@ -5,27 +5,30 @@ using System.Collections.Generic;
 public class MobGenerator : MonoBehaviour
 {
 
-    public GameObject[] Human;
-    public GameObject[] Animal;
-    public GameObject[] Car;
-    public float[] mobxPos;
-    public float[] carxPos;
-    private int startpos = -50;
-    private int stoppos = 160;
-    private int generatepos = 100;
-    public static bool generate = false;
-    private List<GameObject> list_Human = new List<GameObject>();
-    private List<GameObject> list_Animal = new List<GameObject>();
-    private List<GameObject> list_Car = new List<GameObject>();
-    private GameObject item_Human;
-    private GameObject item_Animal;
-    private GameObject item_Car;
+    public GameObject[] Human;      //人間系モブキャラのプレハブを入れる配列
+    public GameObject[] Animal;     //動物系モブキャラのプレハブを入れる配列
+    public GameObject[] Car;        //乗り物系モブキャラのプレハブを入れる配列
+    public float[] mobxPos;         //人間・動物系モブキャラが出現するx軸の値を入れた配列
+    public float[] carxPos;         //乗り物系モブキャラが出現するx軸の値を入れた配列
+    private int startpos = -50;     //最初に配置されるモブキャラのz軸の最初の値
+    private int stoppos = 210;      //最初に配置されるモブキャラのz軸の最後の値
+    private int generatepos = 150;  //ゲーム中に配置されるモブキャラのz軸の値
+    public static int generateCount = 0;    //配置されたモブキャラをカウントするint型整数。MobControllerに使用。
+    private List<GameObject> list_Human = new List<GameObject>();   //最初に生成した人間系モブキャラを入れるためのList
+    private List<GameObject> list_Animal = new List<GameObject>();  //最初に生成した動物系モブキャラを入れるためのList
+    private List<GameObject> list_Car = new List<GameObject>();     //最初に生成した乗り物系モブキャラを入れるためのList
+    private GameObject item_Human;      //生成したモブキャラの収納先
+    private GameObject item_Animal;     //生成したモブキャラの収納先
+    private GameObject item_Car;        //生成したモブキャラの収納先
 
 
     // Use this for initialization
     void Start()
     {
+        generateCount = 0;
 
+        //オブジェクトプールの作成
+        //配列のi番目に収納されているプレハブを3つ生成して非表示にし、Listに入れる
         for (int i = 0; i < Human.Length; i++)
         {
             for (int j = 1; j <= 3; j++)
@@ -37,6 +40,7 @@ public class MobGenerator : MonoBehaviour
             }
         }
 
+        //配列のi番目に収納されているプレハブを3つ生成して非表示にし、Listに入れる
         for (int a = 0; a < Animal.Length; a++)
         {
             for (int b = 1; b <= 3; b++)
@@ -48,6 +52,7 @@ public class MobGenerator : MonoBehaviour
             }
         }
 
+        //配列のi番目に収納されているプレハブを3つ生成して非表示にし、Listに入れる
         for (int i = 0; i < Car.Length; i++)
         {
             for (int j = 1; j <= 3; j++)
@@ -59,39 +64,72 @@ public class MobGenerator : MonoBehaviour
             }
         }
 
+        //ゲームスタート時のモブキャラの配置
+        //startposからstopposまで10刻みでモブキャラを配置していく。
         for (int i = startpos; i < stoppos; i += 10)
         {
+            generateCount++;
             int item = Random.Range(1, 11);
             int mobxPosNum = Random.Range(0, 7);
             int carxPosNum = Random.Range(0, 4);
-            int offsetZ = Random.Range(-5, 6);
+            int offsetZ = Random.Range(-5, 6);      //等間隔で配置されないようにz軸方向にランダム数値を入れる。
 
             if (1 <= item && item <= 6)
             {
-                int num = Random.Range(0, list_Human.Count);
-                if (list_Human[num].gameObject.activeSelf == false)
+                while(true)
                 {
-                    list_Human[num].transform.position = new Vector3(mobxPos[mobxPosNum], list_Human[num].transform.position.y, i + offsetZ);
-                    list_Human[num].SetActive(true);
+                    //ランダム数値のnumより、list_Human[num]のactiveSelfがfalseだった場合、trueにして配置
+                    int num = Random.Range(0, list_Human.Count);
+                    if (list_Human[num].gameObject.activeSelf == false)
+                    {
+                        list_Human[num].transform.position = new Vector3(mobxPos[mobxPosNum], list_Human[num].transform.position.y, i + offsetZ);
+                        list_Human[num].SetActive(true);
+                        break;
+                    }
+                    else
+                    {
+                        continue; //ランダム数値のnumより、list_Human[num]のactiveSelfがtureだった場合、再抽選する
+                    }
                 }
+                
             }
             else if (7 <= item && item <= 8)
             {
-                int num = Random.Range(0, list_Animal.Count);
-                if (list_Animal[num].gameObject.activeSelf == false)
+                while (true)
                 {
-                    list_Animal[num].transform.position = new Vector3(mobxPos[mobxPosNum], list_Human[num].transform.position.y, i + offsetZ);
-                    list_Animal[num].SetActive(true);
+                    //ランダム数値のnumより、list_Animal[num]のactiveSelfがfalseだった場合、trueにして配置
+                    int num = Random.Range(0, list_Animal.Count);
+                    if (list_Animal[num].gameObject.activeSelf == false)
+                    {
+                        list_Animal[num].transform.position = new Vector3(mobxPos[mobxPosNum], list_Human[num].transform.position.y, i + offsetZ);
+                        list_Animal[num].SetActive(true);
+                        break;
+                    }
+                    else
+                    {
+                        continue; //ランダム数値のnumより、list_Animal[num]のactiveSelfがtureだった場合、再抽選する
+                    }
                 }
+                
             }
             else if (9 <= item && item <= 10)
             {
-                int num = Random.Range(0, list_Car.Count);
-                if (list_Car[num].gameObject.activeSelf == false)
+                while (true)
                 {
-                    list_Car[num].transform.position = new Vector3(carxPos[carxPosNum], list_Human[num].transform.position.y, i + offsetZ);
-                    list_Car[num].SetActive(true);
+                    //ランダム数値のnumより、list_Car[num]のactiveSelfがfalseだった場合、trueにして配置
+                    int num = Random.Range(0, list_Car.Count);
+                    if (list_Car[num].gameObject.activeSelf == false)
+                    {
+                        list_Car[num].transform.position = new Vector3(carxPos[carxPosNum], list_Human[num].transform.position.y, i + offsetZ);
+                        list_Car[num].SetActive(true);
+                        break;
+                    }
+                    else
+                    {
+                        continue; //ランダム数値のnumより、list_Car[num]のactiveSelfがtureだった場合、再抽選する
+                    }
                 }
+                
             }
         }
     }
@@ -99,13 +137,13 @@ public class MobGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        if (generate)
+        //モブキャラが吸い取られた、画面外に行った場合すぐ補充するようにする処理
+        if (generateCount <= 25)
         {
             int item = Random.Range(1, 11);
             int mobxPosNum = Random.Range(0, 7);
             int carxPosNum = Random.Range(0, 4);
-            int offsetZ = Random.Range(-5, 6);
+            int offsetZ = Random.Range(-10, 10);
             if (1 <= item && item <= 6)
             {
                 int num = Random.Range(0, list_Human.Count);
@@ -114,7 +152,7 @@ public class MobGenerator : MonoBehaviour
                     list_Human[num].transform.position = new Vector3(mobxPos[mobxPosNum], list_Human[num].transform.position.y, generatepos + offsetZ);
                     list_Human[num].SetActive(true);
                 }
-                else
+                else        //ランダム数値のnumより、list_Human[num]のactiveSelfがtureだった場合、この処理を中断して再抽選する。
                 {
                     return;
                 }
@@ -148,7 +186,7 @@ public class MobGenerator : MonoBehaviour
                 }
             }
 
-            generate = false;
+            generateCount++;
         }
 
     }
