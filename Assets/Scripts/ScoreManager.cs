@@ -5,12 +5,16 @@ using UnityEngine.UI;
 public class ScoreManager : MonoBehaviour
 {
     [SerializeField]
-    Text scoreText;
+    Text scoreValueText;
+    [SerializeField]
+    Text highScoreValueText;
 
     int score;
     int comboBonus;
     float time;
     MobInformation.MobParamator nowBonusMobParam;
+
+    int highScore;
 
     private static ScoreManager instance;
     public static ScoreManager Instance
@@ -30,6 +34,8 @@ public class ScoreManager : MonoBehaviour
     readonly int IMPACT_OBJ_SCORE_POINT = -10000;
     readonly int REDUCE_SCORE_PER_SECOND = 333; //吸い込み中に減るスコア量(毎秒)
 
+    readonly string HIGH_SCORE_KEY = "High_Score";
+
     // Use this for initialization
     void Start()
     {
@@ -39,10 +45,12 @@ public class ScoreManager : MonoBehaviour
     void Init()
     {
         score = 0;
+        highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
         comboBonus = 1;
         time = 0f;
         nowBonusMobParam = null;
-        scoreText.text = "スコア " + score;
+        scoreValueText.text = score.ToString();
+        highScoreValueText.text = highScore.ToString();
     }
 
     // Update is called once per frame
@@ -111,26 +119,39 @@ public class ScoreManager : MonoBehaviour
                 CharactorTextContoller.Instance.SetCaputureFailText();
             }
         }
-        scoreText.text = "スコア " + score;
+        scoreValueText.text = score.ToString();
         return isCaptureSuccess;
     }
 
     public void CalcScorePointInImpactObject()
     {
         score += IMPACT_OBJ_SCORE_POINT;
-        scoreText.text = "スコア " + score;
+        scoreValueText.text = score.ToString();
     }
 
     //モブキャラを吸い込む操作の中にいれること
     public void CalcScorePointInSuction()
     {
         score -= (int)(REDUCE_SCORE_PER_SECOND * Time.deltaTime);
-        scoreText.text = "スコア " + score;
+        scoreValueText.text = score.ToString();
     }
 
     //吸い込みボタンを離したらリセットするようにこの処理を入れること
     public void ResetComboBonus()
     {
         comboBonus = 1;
+    }
+
+    public bool IsUpdateHighScore()
+    {
+        return score > highScore;
+    }
+
+    public void SaveHighScore()
+    {
+        if(IsUpdateHighScore())
+        {
+            PlayerPrefs.SetInt(HIGH_SCORE_KEY, score);
+        }
     }
 }

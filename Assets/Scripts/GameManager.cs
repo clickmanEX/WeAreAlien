@@ -86,7 +86,15 @@ public class GameManager : MonoBehaviour
                 audioSource.clip = winMusic;
                 audioSource.Play(22050);
                 gameEndPanel.SetActive(true);
-                gameResultText.text = "Mission Complete!!" + "\n" + "スコア " + ScoreManager.Instance.GetScorePoint();
+                if (ScoreManager.Instance.IsUpdateHighScore())
+                {
+                    gameResultText.text = "Mission Complete!!" + "\n" + "Congratulations!" + "\n" + "New Record" + "\n" + "Score " + ScoreManager.Instance.GetScorePoint();
+                }
+                else
+                {
+                    gameResultText.text = "Mission Complete!!" + "\n" + "Score " + ScoreManager.Instance.GetScorePoint();
+                }
+                ScoreManager.Instance.SaveHighScore();
                 CharactorTextContoller.Instance.SetGameClearText();
                 break;
             case PHASE.GAME_OVER:

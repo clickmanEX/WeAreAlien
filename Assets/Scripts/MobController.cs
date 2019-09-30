@@ -34,8 +34,14 @@ public class MobController : MonoBehaviour
     {
         if (this.dropDown == false)
         {
-            this.transform.Translate(0, 0, Time.deltaTime * forwardForce);
-
+            if (UFOController.isBoostButtonDown)
+            {
+                this.transform.Translate(0, 0, Time.deltaTime * forwardForce * 10);
+            }
+            else
+            {
+                this.transform.Translate(0, 0, Time.deltaTime * forwardForce);
+            }
         }
         else if (this.dropDown)
         {

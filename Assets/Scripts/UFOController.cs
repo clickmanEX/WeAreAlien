@@ -5,15 +5,15 @@ using UnityEngine.UI;
 
 public class UFOController : MonoBehaviour
 {
-
+    [SerializeField] VirtualJoystick virtualJoystick;
     private Rigidbody myRigidbody;
     private float speed = 50.0f;
     private float billForce = 1000.0f;
     private bool stop = false;
     public static bool isCatchButtonDown = false;
-    private bool isForwardButtonDown = false;
-    private bool isBackButtonDown = false;
+    public static bool isBoostButtonDown = false;
     private int isCatchButtonTrueCount = 0;
+    private int isBoostButtonTrueCount = 0;
     private AudioSource[] ufoSE;
 
     readonly float MOVE_MAX_SPEED = 50f;
@@ -48,6 +48,15 @@ public class UFOController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //VirtualJoystickクラスのInputDirectionに水平・垂直情報があるため、抽出 
+        Vector3 UFOmove = Vector3.zero;
+        UFOmove.x = Input.GetAxis("Horizontal");
+        UFOmove.z = Input.GetAxis("Vertical");
+
+        if (virtualJoystick.InputDirection != Vector3.zero)
+        {
+            UFOmove = virtualJoystick.InputDirection;
+        }
 
         if (GameManager.Instance.IsGameEnd())
         {
@@ -59,18 +68,22 @@ public class UFOController : MonoBehaviour
         {
             if (this.myRigidbody.velocity.x <= MOVE_MAX_SPEED)
             {
+                this.myRigidbody.AddForce(UFOmove.x * speed, 0, 0);
+
                 if (Input.GetKey(KeyCode.LeftArrow))
                 {
-                    this.myRigidbody.AddForce(-this.speed, 0, 0);
+                    this.myRigidbody.AddForce(-speed, 0, 0);
                 }
                 if (Input.GetKey(KeyCode.RightArrow))
                 {
-                    this.myRigidbody.AddForce(this.speed, 0, 0);
+                    this.myRigidbody.AddForce(speed, 0, 0);
                 }
             }
 
             if (this.myRigidbody.velocity.z <= MOVE_MAX_SPEED)
             {
+                this.myRigidbody.AddForce(0, 0, UFOmove.z * speed);
+
                 if (Input.GetKey(KeyCode.UpArrow))
                 {
                     this.myRigidbody.AddForce(0, 0, this.speed);
@@ -79,17 +92,7 @@ public class UFOController : MonoBehaviour
                 {
                     this.myRigidbody.AddForce(0, 0, -this.speed);
                 }
-                if (isForwardButtonDown)
-                {
-                    this.myRigidbody.AddForce(-this.speed, 0, this.speed);
-                }
-                if (isBackButtonDown)
-                {
-                    this.myRigidbody.AddForce(this.speed, 0, -this.speed);
-                }
-
             }
-
         }
         else         //スペースキー押してる間はモブを吸い込むため、UFOは停止する。
         {
@@ -117,6 +120,21 @@ public class UFOController : MonoBehaviour
                 ufoSE[0].Play();
             }
 
+        }
+
+        if (isBoostButtonDown)    //BoostButton押したとき、一回だけ吸い込み音を再生
+        {
+            isBoostButtonTrueCount++;
+
+            if (isBoostButtonTrueCount <= 1)
+            {
+                ufoSE[2].Play();
+            }
+
+        }
+        else       //BoostButton離したとき吸い込み音を停止
+        {
+            ufoSE[2].Stop();
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -189,25 +207,19 @@ public class UFOController : MonoBehaviour
         isCatchButtonTrueCount = 0;
     }
 
-    public void GetMyForwardButtonDown()
+    //ゲーム終了時は押しても反応しないように処理
+    public void GetBoostButtonDown()
     {
-        this.isForwardButtonDown = true;
+        if (!GameManager.Instance.IsGameEnd())
+        {
+            isBoostButtonDown = true;
+        }
     }
 
-    public void GetMyForwardButtonUp()
+    //ボタンを離した時、SE再生用ブール(isCatchButtonTrueCount)を0にリセット
+    public void GetBoostButtonUp()
     {
-        this.isForwardButtonDown = false;
+        isBoostButtonDown = false;
+        isBoostButtonTrueCount = 0;
     }
-
-
-    public void GetMyBackButtonDown()
-    {
-        this.isBackButtonDown = true;
-    }
-
-    public void GetMyBackButtonUp()
-    {
-        this.isBackButtonDown = false;
-    }
-
 }
