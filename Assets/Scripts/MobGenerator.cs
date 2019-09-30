@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+//TODO:リファクタリングすること
 public class MobGenerator : MonoBehaviour
 {
 
