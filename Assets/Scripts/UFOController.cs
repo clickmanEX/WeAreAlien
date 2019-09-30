@@ -7,27 +7,41 @@ public class UFOController : MonoBehaviour
 {
 
     private Rigidbody myRigidbody;
-    private float maxSpeed = 50.0f;
-    private float coefficient = 0.95f;  //減衰用変数
-    private float turnForce = 50.0f;
+    private float speed = 50.0f;
     private float billForce = 1000.0f;
-    private float minusTime = 1.5f;
-    private int comboBonus = 1;
     private bool stop = false;
     public static bool isCatchButtonDown = false;
     private bool isForwardButtonDown = false;
     private bool isBackButtonDown = false;
     private int isCatchButtonTrueCount = 0;
     private AudioSource[] ufoSE;
-    public static bool bunusPoint = false;
-    public static bool minusPoint = false;
+
+    readonly float MOVE_MAX_SPEED = 50f;
+    readonly float DAMPING_COEF = 0.95f;
+
+    private static UFOController instance;
+    public static UFOController Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                UFOController obj = GameObject.Find("UFO").GetComponent<UFOController>();
+                instance = obj;
+            }
+            return instance;
+        }
+    }
+
+    void Awake()
+    {
+        this.myRigidbody = GetComponent<Rigidbody>();
+        ufoSE = GetComponents<AudioSource>();
+    }
 
     // Use this for initialization
     void Start()
     {
-
-        this.myRigidbody = GetComponent<Rigidbody>();
-        ufoSE = GetComponents<AudioSource>();
 
     }
 
@@ -35,43 +49,43 @@ public class UFOController : MonoBehaviour
     void Update()
     {
 
-        if (LifeController.isEnd)
+        if (GameManager.Instance.IsGameEnd())
         {
-            this.turnForce *= coefficient;   //すぐに止まらないように慣性をつけた動きにするため。
+            this.speed *= DAMPING_COEF;   //すぐに止まらないように慣性をつけた動きにするため。
         }
 
 
         if (this.stop == false)     //28~52行目まで、上下左右の動きをつける。スペースキーを押していない間は動けるように条件をつけた。
         {
-            if (this.myRigidbody.velocity.x <= maxSpeed)
+            if (this.myRigidbody.velocity.x <= MOVE_MAX_SPEED)
             {
                 if (Input.GetKey(KeyCode.LeftArrow))
                 {
-                    this.myRigidbody.AddForce(-this.turnForce, 0, 0);
+                    this.myRigidbody.AddForce(-this.speed, 0, 0);
                 }
                 if (Input.GetKey(KeyCode.RightArrow))
                 {
-                    this.myRigidbody.AddForce(this.turnForce, 0, 0);
+                    this.myRigidbody.AddForce(this.speed, 0, 0);
                 }
             }
 
-            if (this.myRigidbody.velocity.z <= maxSpeed)
+            if (this.myRigidbody.velocity.z <= MOVE_MAX_SPEED)
             {
                 if (Input.GetKey(KeyCode.UpArrow))
                 {
-                    this.myRigidbody.AddForce(0, 0, this.turnForce);
+                    this.myRigidbody.AddForce(0, 0, this.speed);
                 }
                 if (Input.GetKey(KeyCode.DownArrow))
                 {
-                    this.myRigidbody.AddForce(0, 0, -this.turnForce);
+                    this.myRigidbody.AddForce(0, 0, -this.speed);
                 }
                 if (isForwardButtonDown)
                 {
-                    this.myRigidbody.AddForce(-this.turnForce, 0, this.turnForce);
+                    this.myRigidbody.AddForce(-this.speed, 0, this.speed);
                 }
                 if (isBackButtonDown)
                 {
-                    this.myRigidbody.AddForce(this.turnForce, 0, -this.turnForce);
+                    this.myRigidbody.AddForce(this.speed, 0, -this.speed);
                 }
 
             }
@@ -85,13 +99,12 @@ public class UFOController : MonoBehaviour
         if (Input.GetKey(KeyCode.Space) || isCatchButtonDown)    //スペースキー押してる間は停止、スペースキーを離すと動けるように。
         {
             this.stop = true;
-            ScoreText.scorePt -= 500 / minusTime * Time.deltaTime;
-
+            ScoreManager.Instance.CalcScorePointInSuction();
         }
         else
         {
             this.stop = false;
-            this.comboBonus = 1;
+            ScoreManager.Instance.ResetComboBonus();
             ufoSE[0].Stop();
         }
 
@@ -123,16 +136,16 @@ public class UFOController : MonoBehaviour
 
             if (this.stop == false)
             {
-                if (this.myRigidbody.velocity.x <= maxSpeed)
+                if (this.myRigidbody.velocity.x <= MOVE_MAX_SPEED)
                 {
                     if (touch.phase == TouchPhase.Stationary && worldPos.x <= 0)
                     {
-                        this.myRigidbody.AddForce(-this.turnForce, 0, 0);
+                        this.myRigidbody.AddForce(-this.speed, 0, 0);
                     }
 
                     if (touch.phase == TouchPhase.Stationary && worldPos.x > 0)
                     {
-                        this.myRigidbody.AddForce(this.turnForce, 0, 0);
+                        this.myRigidbody.AddForce(this.speed, 0, 0);
                     }
 
                 }
@@ -145,62 +158,24 @@ public class UFOController : MonoBehaviour
 
     void OnCollisionEnter(Collision mob)
     {
-
-        if (mob.gameObject.tag == "Human" || mob.gameObject.tag == "Army" || mob.gameObject.tag == "Chef"
-            || mob.gameObject.tag == "Scientist" || mob.gameObject.tag == "Alien"
-            || mob.gameObject.tag == "Cat" || mob.gameObject.tag == "Dog")
+        if (mob.gameObject.tag == "Bill")
         {
-
-            if (CharactorTextContoller.MobText[1] && mob.gameObject.tag == "Army" || CharactorTextContoller.MobText[2] && mob.gameObject.tag == "Scientist"
-               || CharactorTextContoller.MobText[3] && mob.gameObject.tag == "Chef" || CharactorTextContoller.MobText[4] && mob.gameObject.tag == "Cat"
-               || CharactorTextContoller.MobText[4] && mob.gameObject.tag == "Dog" || CharactorTextContoller.MobText[7] && mob.gameObject.tag == "Alien")
+            GameManager.Instance.DamageLife();
+            ScoreManager.Instance.CalcScorePointInImpactObject();
+            CharactorTextContoller.Instance.SetImpactBillText();
+            float Reflectivity = billForce * Mathf.Sign(myRigidbody.velocity.x) * -1f;
+            myRigidbody.AddForce(Reflectivity, 0, 0);
+            ufoSE[1].Play();
+        }
+        else
+        {
+            bool isSuccessCaputure = ScoreManager.Instance.CalcScorePointInCaptureMob(mob.gameObject.tag);
+            if (!isSuccessCaputure)
             {
-                ScoreText.scorePt += 2000 * comboBonus;
-                bunusPoint = true;
-                this.comboBonus++;
-                return;
+                GameManager.Instance.DamageLife();
+                ufoSE[1].Play();
             }
-
-            ScoreText.scorePt += 1000 * comboBonus;
-            this.comboBonus++;
         }
-
-        if (mob.gameObject.tag == "Car" || mob.gameObject.tag == "Ambulance" || mob.gameObject.tag == "Bear")
-        {
-            if (CharactorTextContoller.MobText[5] && mob.gameObject.tag == "Bear" || CharactorTextContoller.MobText[6] && mob.gameObject.tag == "Ambulance")
-            {
-                ScoreText.scorePt += 5000 * comboBonus;
-                bunusPoint = true;
-                this.comboBonus++;
-                return;
-            }
-
-            ScoreText.scorePt -= 10000;
-            minusPoint = true;
-            CharactorTextContoller.minusTextnum = 0;
-            LifeController.lifeCount -= 1;
-            ufoSE[1].Play();
-        }
-
-        if (mob.gameObject.tag == "BillRight")
-        {
-            ScoreText.scorePt -= 10000;
-            LifeController.lifeCount -= 1;
-            minusPoint = true;
-            CharactorTextContoller.minusTextnum = 1;
-            this.myRigidbody.AddForce(-this.billForce, 0, 0);
-            ufoSE[1].Play();
-        }
-        if (mob.gameObject.tag == "BillLeft")
-        {
-            ScoreText.scorePt -= 10000;
-            LifeController.lifeCount -= 1;
-            minusPoint = true;
-            CharactorTextContoller.minusTextnum = 1;
-            this.myRigidbody.AddForce(this.billForce, 0, 0);
-            ufoSE[1].Play();
-        }
-
     }
 
     public void GetMyCatchButtonDown()

@@ -18,7 +18,7 @@ public class FloorController : MonoBehaviour
     void Update()
     {
 
-        if (LifeController.isEnd)
+        if (GameManager.Instance.IsGameEnd())
         {
             this.scrollSpeed *= 0.99f;
         }

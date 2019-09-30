@@ -105,7 +105,7 @@ public class MobController : MonoBehaviour
 
     void OnTriggerEnter(Collider triggerEnter)
     {
-        if (LifeController.isEnd == false)
+        if (!GameManager.Instance.IsGameEnd())
         {
             if (triggerEnter.gameObject.tag == "DeadLine")
             {
