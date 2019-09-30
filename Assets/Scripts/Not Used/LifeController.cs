@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
+#if false
 public class LifeController : MonoBehaviour
 {
 
@@ -75,3 +76,4 @@ public class LifeController : MonoBehaviour
 
     }
 }
+#endif

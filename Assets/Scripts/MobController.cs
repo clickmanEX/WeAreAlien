@@ -7,7 +7,7 @@ public class MobController : MonoBehaviour
     private Rigidbody mobRigidbody;
     private GameObject ufo;
     private float movetime = 1.5f;
-    public float forwardForce = -10f;   //基本血：-10f　車などの早く動かしたいものはインスペクタで別途調整
+    public float forwardForce = -10f;   //基本値：-10f　車などの早く動かしたいものはインスペクタで別途調整
     public float upForce = 300f;        //基本値：300f　車などの跳ねさせたくないものはインスペクタで0に調整
     private float upDistance;
     private float upSpeed;
@@ -34,8 +34,14 @@ public class MobController : MonoBehaviour
     {
         if (this.dropDown == false)
         {
-            this.transform.Translate(0, 0, Time.deltaTime * forwardForce);
-
+            if (UFOController.Instance.IsBoost())
+            {
+                this.transform.Translate(0, 0, Time.deltaTime * forwardForce * 10);
+            }
+            else
+            {
+                this.transform.Translate(0, 0, Time.deltaTime * forwardForce);
+            }
         }
         else if (this.dropDown)
         {
@@ -68,17 +74,21 @@ public class MobController : MonoBehaviour
             this.gameObject.SetActive(false);
         }
 
+        if (this.transform.position.y < -10f || this.transform.position.z < -60f)
+        {
+            MobGenerator.generateCount--;
+            this.gameObject.SetActive(false);
+        }
     }
 
     void OnTriggerStay(Collider triggerStay)
     {
         this.uping = false;
 
-        if (Input.GetKey(KeyCode.Space) || UFOController.isCatchButtonDown)
+        if (UFOController.Instance.IsCaputuring())
         {
             this.uping = true;
             this.transform.position = new Vector3(ufo.transform.position.x, this.transform.position.y, ufo.transform.position.z);
-
         }
 
     }
@@ -90,7 +100,7 @@ public class MobController : MonoBehaviour
             this.transform.position = new Vector3(-40, 0, -40);
             this.uping = false;
             this.gameObject.SetActive(false);
-            MobGenerator.generate = true;
+            MobGenerator.generateCount--;
         }
 
         if (other.gameObject.tag == "Floor")
@@ -99,19 +109,6 @@ public class MobController : MonoBehaviour
             this.transform.Rotate(0, -this.rotatereturn, 0);
             this.rotatereturn = 0;
             this.dropDown = false;
-        }
-
-    }
-
-    void OnTriggerEnter(Collider triggerEnter)
-    {
-        if (LifeController.isEnd == false)
-        {
-            if (triggerEnter.gameObject.tag == "DeadLine")
-            {
-                this.gameObject.SetActive(false);
-                MobGenerator.generate = true;
-            }
         }
 
     }

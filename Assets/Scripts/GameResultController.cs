@@ -25,12 +25,6 @@ public class GameResultController : MonoBehaviour
 
     public void LoadTitle()
     {
-        LifeController.isEnd = false;
-        ScoreText.scorePt = 0;
-        LifeController.lifeCount = 3;
-        LifeController.gameTime = 0f;
-        UFOController.bunusPoint = false;
-        UFOController.minusPoint = false;
         SceneManager.LoadScene("Title");
     }
 
@@ -42,12 +36,6 @@ public class GameResultController : MonoBehaviour
 
     public void LoadRestart()
     {
-        LifeController.isEnd = false;
-        ScoreText.scorePt = 0;
-        LifeController.lifeCount = 3;
-        LifeController.gameTime = 0f;
-        UFOController.bunusPoint = false;
-        UFOController.minusPoint = false;
         SceneManager.LoadScene("GameScene");
     }
 
