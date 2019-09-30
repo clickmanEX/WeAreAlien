@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-
+#if false
 public class ScoreText : MonoBehaviour
 {
 
@@ -26,3 +26,4 @@ public class ScoreText : MonoBehaviour
 
     }
 }
+#endif
