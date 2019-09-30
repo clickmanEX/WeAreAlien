@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+//TODO:リファクタリングすること
 public class MobController : MonoBehaviour
 {
 
