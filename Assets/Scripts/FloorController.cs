@@ -31,7 +31,7 @@ public class FloorController : MonoBehaviour
         }
 
 
-        if (UFOController.isBoostButtonDown)
+        if (UFOController.Instance.IsBoost())
         {
             transform.Translate(0, Time.deltaTime * scrollSpeed * BOOST_SPEED_COEF, 0);
         }

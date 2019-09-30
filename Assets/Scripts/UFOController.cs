@@ -6,18 +6,32 @@ using UnityEngine.UI;
 public class UFOController : MonoBehaviour
 {
     [SerializeField] VirtualJoystick virtualJoystick;
-    private Rigidbody myRigidbody;
-    private float speed = 50.0f;
-    private float billForce = 1000.0f;
-    private bool stop = false;
-    public static bool isCatchButtonDown = false;
-    public static bool isBoostButtonDown = false;
-    private int isCatchButtonTrueCount = 0;
-    private int isBoostButtonTrueCount = 0;
-    private AudioSource[] ufoSE;
+    [SerializeField] AudioClip boostClip;
+    [SerializeField] AudioClip captureClip;
+    [SerializeField] AudioClip damageClip;
+
+    Rigidbody myRigidbody;
+    float speed = 50.0f;
+    float billForce = 1000.0f;
+    AudioSource audioSource;
+
+    float damageTime;
 
     readonly float MOVE_MAX_SPEED = 50f;
     readonly float DAMPING_COEF = 0.95f;
+    readonly float MOVE_RANGE_MIN = -40f;
+    readonly float MOVE_RANGE_MAX = 50f;
+    readonly float DAMAGE_PHASE_END_TIME = 1f;
+
+    PHASE phase;
+    enum PHASE
+    {
+        MOVE,
+        BOOST,
+        CAPTURE,
+        DAMAGE,
+        NONE
+    }
 
     private static UFOController instance;
     public static UFOController Instance
@@ -36,154 +50,149 @@ public class UFOController : MonoBehaviour
     void Awake()
     {
         this.myRigidbody = GetComponent<Rigidbody>();
-        ufoSE = GetComponents<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Use this for initialization
     void Start()
     {
+        SetPhase(PHASE.MOVE);
+    }
 
+    void SetPhase(PHASE phase)
+    {
+        this.phase = phase;
+        switch (phase)
+        {
+            case PHASE.MOVE:
+                audioSource.Stop();
+                ScoreManager.Instance.ResetComboBonus();
+                break;
+            case PHASE.BOOST:
+                audioSource.clip = boostClip;
+                audioSource.loop = false;
+                audioSource.Play();
+                ScoreManager.Instance.ResetComboBonus();
+                break;
+            case PHASE.CAPTURE:
+                audioSource.clip = captureClip;
+                audioSource.loop = true;
+                audioSource.Play();
+                break;
+            case PHASE.DAMAGE:
+                audioSource.clip = damageClip;
+                audioSource.loop = false;
+                audioSource.Play();
+                damageTime = 0f;
+                break;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        switch (phase)
+        {
+            case PHASE.MOVE:
+            case PHASE.BOOST:
+                ControlUFO();
+                break;
+            case PHASE.CAPTURE:
+                myRigidbody.velocity = new Vector3(0, 0, 0);
+                ScoreManager.Instance.CalcScorePointInSuction();
+#if UNITY_EDITOR
+                if (Input.GetKeyUp(KeyCode.Space))
+                {
+                    GetMyCatchButtonUp();
+                }
+#endif
+                break;
+            case PHASE.DAMAGE:
+                damageTime += Time.deltaTime;
+                if (damageTime > DAMAGE_PHASE_END_TIME)
+                {
+                    SetPhase(PHASE.MOVE);
+                }
+                break;
+        }
+
+        float z = Mathf.Clamp(transform.localPosition.z, MOVE_RANGE_MIN, MOVE_RANGE_MAX);
+        transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, z);
+    }
+
+    void ControlUFO()
+    {
         //VirtualJoystickクラスのInputDirectionに水平・垂直情報があるため、抽出 
-        Vector3 UFOmove = Vector3.zero;
-        UFOmove.x = Input.GetAxis("Horizontal");
-        UFOmove.z = Input.GetAxis("Vertical");
+        Vector3 moveVector = Vector3.zero;
+        moveVector.x = Input.GetAxis("Horizontal");
+        moveVector.z = Input.GetAxis("Vertical");
 
         if (virtualJoystick.InputDirection != Vector3.zero)
         {
-            UFOmove = virtualJoystick.InputDirection;
+            moveVector = virtualJoystick.InputDirection;
         }
 
         if (GameManager.Instance.IsGameEnd())
         {
-            this.speed *= DAMPING_COEF;   //すぐに止まらないように慣性をつけた動きにするため。
+            speed *= DAMPING_COEF;   //すぐに止まらないように慣性をつけた動きにするため。
+            return;
         }
 
 
-        if (this.stop == false)     //28~52行目まで、上下左右の動きをつける。スペースキーを押していない間は動けるように条件をつけた。
+        if (this.myRigidbody.velocity.x <= MOVE_MAX_SPEED)
         {
-            if (this.myRigidbody.velocity.x <= MOVE_MAX_SPEED)
+            this.myRigidbody.AddForce(moveVector.x * speed, 0, 0);
+#if UNITY_EDITOR
+            if (Input.GetKey(KeyCode.LeftArrow))
             {
-                this.myRigidbody.AddForce(UFOmove.x * speed, 0, 0);
-
-                if (Input.GetKey(KeyCode.LeftArrow))
-                {
-                    this.myRigidbody.AddForce(-speed, 0, 0);
-                }
-                if (Input.GetKey(KeyCode.RightArrow))
-                {
-                    this.myRigidbody.AddForce(speed, 0, 0);
-                }
+                this.myRigidbody.AddForce(-speed, 0, 0);
             }
-
-            if (this.myRigidbody.velocity.z <= MOVE_MAX_SPEED)
+            if (Input.GetKey(KeyCode.RightArrow))
             {
-                this.myRigidbody.AddForce(0, 0, UFOmove.z * speed);
-
-                if (Input.GetKey(KeyCode.UpArrow))
-                {
-                    this.myRigidbody.AddForce(0, 0, this.speed);
-                }
-                if (Input.GetKey(KeyCode.DownArrow))
-                {
-                    this.myRigidbody.AddForce(0, 0, -this.speed);
-                }
+                this.myRigidbody.AddForce(speed, 0, 0);
             }
-        }
-        else         //スペースキー押してる間はモブを吸い込むため、UFOは停止する。
-        {
-            this.myRigidbody.velocity = new Vector3(0, 0, 0);
+#endif
         }
 
-        if (Input.GetKey(KeyCode.Space) || isCatchButtonDown)    //スペースキー押してる間は停止、スペースキーを離すと動けるように。
+        if (this.myRigidbody.velocity.z <= MOVE_MAX_SPEED)
         {
-            this.stop = true;
-            ScoreManager.Instance.CalcScorePointInSuction();
-        }
-        else
-        {
-            this.stop = false;
-            ScoreManager.Instance.ResetComboBonus();
-            ufoSE[0].Stop();
-        }
-
-        if (isCatchButtonDown)    //CatchButton押したとき吸い込み音を再生
-        {
-            isCatchButtonTrueCount++;
-
-            if (isCatchButtonTrueCount <= 1)
+            this.myRigidbody.AddForce(0, 0, moveVector.z * speed);
+#if UNITY_EDITOR
+            if (Input.GetKey(KeyCode.UpArrow))
             {
-                ufoSE[0].Play();
+                this.myRigidbody.AddForce(0, 0, this.speed);
             }
-
-        }
-
-        if (isBoostButtonDown)    //BoostButton押したとき、一回だけ吸い込み音を再生
-        {
-            isBoostButtonTrueCount++;
-
-            if (isBoostButtonTrueCount <= 1)
+            if (Input.GetKey(KeyCode.DownArrow))
             {
-                ufoSE[2].Play();
+                this.myRigidbody.AddForce(0, 0, -this.speed);
             }
-
-        }
-        else       //BoostButton離したとき吸い込み音を停止
-        {
-            ufoSE[2].Stop();
+#endif
         }
 
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            ufoSE[0].Play();
+            GetMyCatchButtonDown();
         }
-
-
-        ///タッチ座標をスクリーン座標からワールド座標に変換し、x座標で画面を左右2分割にしてフリッパーを制御
-        foreach (Touch touch in Input.touches)
-        {
-            ///タッチ座標がx,y座標しかないのでz座標を追加し、ワールド座標に変換
-            Vector3 pos = touch.position;
-            pos.z = 100f;
-
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(pos);
-
-            if (this.stop == false)
-            {
-                if (this.myRigidbody.velocity.x <= MOVE_MAX_SPEED)
-                {
-                    if (touch.phase == TouchPhase.Stationary && worldPos.x <= 0)
-                    {
-                        this.myRigidbody.AddForce(-this.speed, 0, 0);
-                    }
-
-                    if (touch.phase == TouchPhase.Stationary && worldPos.x > 0)
-                    {
-                        this.myRigidbody.AddForce(this.speed, 0, 0);
-                    }
-
-                }
-
-            }
-
-        }
+#endif
     }
 
 
     void OnCollisionEnter(Collision mob)
     {
+        if (phase == PHASE.DAMAGE)
+        {
+            return; //ダメージ受けている最中は判定させないようにする。
+        }
+
         if (mob.gameObject.tag == "Bill")
         {
+            CharactorTextContoller.Instance.SetImpactBillText();
             GameManager.Instance.DamageLife();
             ScoreManager.Instance.CalcScorePointInImpactObject();
-            CharactorTextContoller.Instance.SetImpactBillText();
             float Reflectivity = billForce * Mathf.Sign(myRigidbody.velocity.x) * -1f;
             myRigidbody.AddForce(Reflectivity, 0, 0);
-            ufoSE[1].Play();
+            SetPhase(PHASE.DAMAGE);
         }
         else
         {
@@ -191,35 +200,39 @@ public class UFOController : MonoBehaviour
             if (!isSuccessCaputure)
             {
                 GameManager.Instance.DamageLife();
-                ufoSE[1].Play();
+                SetPhase(PHASE.DAMAGE);
             }
         }
     }
 
     public void GetMyCatchButtonDown()
     {
-        isCatchButtonDown = true;
-
+        SetPhase(PHASE.CAPTURE);
     }
+
     public void GetMyCatchButtonUp()
     {
-        isCatchButtonDown = false;
-        isCatchButtonTrueCount = 0;
+        SetPhase(PHASE.MOVE);
     }
 
     //ゲーム終了時は押しても反応しないように処理
     public void GetBoostButtonDown()
     {
-        if (!GameManager.Instance.IsGameEnd())
-        {
-            isBoostButtonDown = true;
-        }
+        SetPhase(PHASE.BOOST);
     }
 
-    //ボタンを離した時、SE再生用ブール(isCatchButtonTrueCount)を0にリセット
     public void GetBoostButtonUp()
     {
-        isBoostButtonDown = false;
-        isBoostButtonTrueCount = 0;
+        SetPhase(PHASE.MOVE);
+    }
+
+    public bool IsBoost()
+    {
+        return phase == PHASE.BOOST;
+    }
+
+    public bool IsCaputuring()
+    {
+        return phase == PHASE.CAPTURE;
     }
 }
