@@ -7,6 +7,8 @@ public class FloorController : MonoBehaviour
     public float scrollSpeed;
     private float deadLine = -100f;
 
+    readonly float BOOST_SPEED_COEF = 3f;
+
     // Use this for initialization
     void Start()
     {
@@ -25,17 +27,17 @@ public class FloorController : MonoBehaviour
 
         if (GameManager.Instance.IsGameEnd())
         {
-            this.scrollSpeed *= 0.99f;
+            scrollSpeed *= 0.99f;
         }
 
 
         if (UFOController.isBoostButtonDown)
         {
-            transform.Translate(0, Time.deltaTime * this.scrollSpeed * 3, 0);
+            transform.Translate(0, Time.deltaTime * scrollSpeed * BOOST_SPEED_COEF, 0);
         }
         else
         {
-            transform.Translate(0, Time.deltaTime * this.scrollSpeed, 0);
+            transform.Translate(0, Time.deltaTime * scrollSpeed, 0);
         }
     }
 }
