@@ -5,113 +5,141 @@ public class MobController : MonoBehaviour
 {
 
     private Rigidbody mobRigidbody;
-    private GameObject ufo;
-    private float movetime = 1.5f;
-    public float forwardForce = -10f;   //基本値：-10f　車などの早く動かしたいものはインスペクタで別途調整
-    public float upForce = 300f;        //基本値：300f　車などの跳ねさせたくないものはインスペクタで0に調整
-    private float upDistance;
-    private float upSpeed;
-    private float rotatespeed = 2f;
-    private float rotatereturn = 0f;
-    private bool uping = false;
-    private bool jumping = false;
-    private bool dropDown = false;
-    public static bool mobActive = true;
+    Transform ufoTrs;
 
+    float timer;
+    private float capturingSpeed;
+    [SerializeField]
+    bool isBoundRun;
 
-    // Use this for initialization
-    void Start()
+    public enum STATE
     {
-        this.mobRigidbody = GetComponent<Rigidbody>();
-        this.ufo = GameObject.Find("UFO");
-        upDistance = ufo.transform.position.y;
-        upSpeed = upDistance / movetime;
+        RUN,
+        CAPTURED,
+        DOWN,
+        NONE
+    }
+    public STATE state;
 
+    readonly float CAPTURE_TIME = 1.5f;
+
+    private void Awake()
+    {
+        mobRigidbody = GetComponent<Rigidbody>();
+        ufoTrs = GameObject.Find("UFO").transform;
+        float upDistance = ufoTrs.transform.position.y;
+        capturingSpeed = upDistance / CAPTURE_TIME;
     }
 
+    private void Start()
+    {
+        Init();
+    }
+
+    public void Init()
+    {
+        timer = 0f;
+        transform.localEulerAngles = Vector3.zero;
+        SetState(STATE.RUN);
+    }
+
+    void SetState(STATE state)
+    {
+        this.state = state;
+        switch (state)
+        {
+            case STATE.RUN:
+            case STATE.CAPTURED:
+                mobRigidbody.isKinematic = true;
+                break;
+            case STATE.DOWN:
+                mobRigidbody.isKinematic = false;
+                break;
+            case STATE.NONE:
+                break;
+        }
+    }
+
+    readonly float RUN_SPEED = -10f;
+    readonly float BOOST_SPEED_COEF = 10f;
+    readonly float BOUND_AMPLITUDE = 1f;
+    readonly float BOUND_FREQUENCY = 1f;
+    readonly float ROTATE_SPEED = 2f;
     // Update is called once per frame
     void Update()
     {
-        if (this.dropDown == false)
+        switch (state)
         {
-            if (UFOController.Instance.IsBoost())
-            {
-                this.transform.Translate(0, 0, Time.deltaTime * forwardForce * 10);
-            }
-            else
-            {
-                this.transform.Translate(0, 0, Time.deltaTime * forwardForce);
-            }
-        }
-        else if (this.dropDown)
-        {
-            this.transform.Translate(0, 0, 0);
-        }
+            case STATE.RUN:
+                if (UFOController.Instance.IsBoost())
+                {
+                    transform.Translate(0, 0, Time.deltaTime * RUN_SPEED * BOOST_SPEED_COEF);
+                }
+                else
+                {
+                    transform.Translate(0, 0, Time.deltaTime * RUN_SPEED);
+                }
 
-
-        if (this.jumping)
-        {
-            this.mobRigidbody.AddForce(this.transform.up * this.upForce);
-            this.jumping = false;
-        }
-
-        if (this.uping)
-        {
-            this.rotatereturn += rotatespeed;
-            this.transform.Rotate(0, rotatespeed, 0);
-            this.mobRigidbody.isKinematic = true;
-            this.transform.Translate(0, Time.deltaTime * upSpeed, 0);
-            this.dropDown = true;
-        }
-        else
-        {
-            this.mobRigidbody.isKinematic = false;
-
-        }
-
-        if (mobActive == false)
-        {
-            this.gameObject.SetActive(false);
+                if (isBoundRun)
+                {
+                    timer += Time.deltaTime;
+                    float y = BOUND_AMPLITUDE * Mathf.Sin(2f * Mathf.PI * BOUND_FREQUENCY * timer);
+                    transform.localPosition = new Vector3(transform.localPosition.x, Mathf.Abs(y), transform.localPosition.z);
+                }
+                break;
+            case STATE.CAPTURED:
+                transform.Rotate(0, ROTATE_SPEED * Time.deltaTime, 0);
+                transform.Translate(0, Time.deltaTime * capturingSpeed, 0);
+                break;
+            case STATE.DOWN:
+                if (Mathf.Approximately(mobRigidbody.velocity.y, 0f))
+                {
+                    //TODO モブキャラ同士が重なった時、重力が効かないケースが発生する。要調査
+                    mobRigidbody.isKinematic = true;
+                    mobRigidbody.isKinematic = false;
+                }
+                break;
         }
 
         if (this.transform.position.y < -10f || this.transform.position.z < -60f)
         {
-            MobGenerator.generateCount--;
+            MobGenerator.Instance.ReduceMobObjectCount();
             this.gameObject.SetActive(false);
         }
     }
 
     void OnTriggerStay(Collider triggerStay)
     {
-        this.uping = false;
-
         if (UFOController.Instance.IsCaputuring())
         {
-            this.uping = true;
-            this.transform.position = new Vector3(ufo.transform.position.x, this.transform.position.y, ufo.transform.position.z);
+            if (state != STATE.CAPTURED)
+            {
+                transform.localPosition = new Vector3(ufoTrs.localPosition.x, transform.localPosition.y, ufoTrs.localPosition.z);
+                SetState(STATE.CAPTURED);
+            }
         }
-
+        else
+        {
+            if (state == STATE.CAPTURED)
+            {
+                SetState(STATE.DOWN);
+            }
+        }
     }
 
     void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.tag == "UFOBody")
+        if (other.gameObject.tag == "UFOBody" && state == STATE.CAPTURED)
         {
-            this.transform.position = new Vector3(-40, 0, -40);
-            this.uping = false;
-            this.gameObject.SetActive(false);
-            MobGenerator.generateCount--;
+            transform.position = new Vector3(-40f, 0f, -40f);
+            gameObject.SetActive(false);
+            MobGenerator.Instance.ReduceMobObjectCount();
         }
 
-        if (other.gameObject.tag == "Floor")
+        if (other.gameObject.tag == "Floor" && state == STATE.DOWN)
         {
-            this.jumping = true;
-            this.transform.Rotate(0, -this.rotatereturn, 0);
-            this.rotatereturn = 0;
-            this.dropDown = false;
+            Init();
         }
-
     }
-
 }
 
