@@ -140,6 +140,10 @@ public class UFOController : MonoBehaviour
         }
 
         float z = Mathf.Clamp(transform.localPosition.z, MOVE_RANGE_MIN, MOVE_RANGE_MAX);
+        if (z == MOVE_RANGE_MIN || z == MOVE_RANGE_MAX)
+        {
+            myRigidbody.velocity = new Vector3(myRigidbody.velocity.x, myRigidbody.velocity.y, 0f); //行動範囲の縁でZ軸方向の速度が加速し続けないようにするため
+        }
         transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, z);
     }
 
