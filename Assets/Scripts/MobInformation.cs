@@ -29,7 +29,7 @@ public class MobInformation
         {
             tagName = "Scientist",
             instructionsText = "地球人ノ科学力ヲ見タイ。優秀ナ人物ガイレバ連レテクルノダ。",
-            successCaptuteText = "Scientist Bonus",
+            successCaptuteText = "ホウ・・・我ガ星ニハナイ技術ガアルトハ興味深いゾ。",
             basePoint = 1000,
             bonusPoint = 2000,
             isDamageObj = false
@@ -38,7 +38,7 @@ public class MobInformation
         {
             tagName = "Chef",
             instructionsText = "宇宙食ハ飽キタナァ。美味シイモノヲ食ベタイ・・・",
-            successCaptuteText = "Chef Bonus",
+            successCaptuteText = "料理人トイウ職業ノ者ガ作ッタ料理カ、ドレドレ・・・。ウマイ！ウマスギル！コノ者を陛下ノモトヘ連レテ行コウ！",
             basePoint = 1000,
             bonusPoint = 2000,
             isDamageObj = false
@@ -46,8 +46,8 @@ public class MobInformation
         new MobParamator ()
         {
             tagName = "Cat",
-            instructionsText = "故郷デ待ッテイル子供ノタメニオ土産ガ欲シイ。何カメボシイモノハナイカ？",
-            successCaptuteText = "Cat Bonus",
+            instructionsText = "故郷デ待ッテイル子供ノタメニオ土産ガ欲シイ。アソコニニャーと泣ク生物ガイルナ・・・",
+            successCaptuteText = "コノ愛ラシイフォルムハタマラン！故郷ノ子供達モキット喜ブダロウ！",
             basePoint = 1000,
             bonusPoint = 2000,
             isDamageObj = false
@@ -55,8 +55,8 @@ public class MobInformation
         new MobParamator ()
         {
             tagName = "Dog",
-            instructionsText = "故郷デ待ッテイル子供ノタメニオ土産ガ欲シイ。何カメボシイモノハナイカ？",
-            successCaptuteText = "Dog Bonus",
+            instructionsText = "故郷デ待ッテイル子供ノタメニオ土産ガ欲シイ。ワンワント吠エル生物がイルナ・・・",
+            successCaptuteText = "コノ愛ラシイフォルムハタマラン！故郷ノ子供達モキット喜ブダロウ！",
             basePoint = 1000,
             bonusPoint = 2000,
             isDamageObj = false
@@ -65,7 +65,7 @@ public class MobInformation
         {
             tagName = "Alien",
             instructionsText = "作戦中ノ戦闘機ガ墜落シタヨウダ！同胞ヲ見ツケ次第大至急回収セヨ！",
-            successCaptuteText = "Alien Bonus",
+            successCaptuteText = "ゴ苦労デアッタ！安心シテユックリ休ムトイイ。",
             basePoint = 1000,
             bonusPoint = 2000,
             isDamageObj = false
@@ -83,7 +83,7 @@ public class MobInformation
         {
             tagName = "Bear",
             instructionsText = "作戦中ノ戦闘機ガ墜落シタヨウダ！同胞ヲ見ツケ次第大至急回収セヨ！",
-            successCaptuteText = "Bear Bonus",
+            successCaptuteText = "コレハナント凶暴ナ生物ダ。貴重ナサンプルトシテ回収スルトシヨウ。",
             basePoint =  -10000,
             bonusPoint = 5000,
             isDamageObj = true
@@ -115,9 +115,9 @@ public class MobInformation
     public static MobParamator SelectMobParamator(string tagName)
     {
         MobParamator mobParam = null;
-        for(int i = 0; i < Bonus_MobParamators.Length; i++)
+        for (int i = 0; i < Bonus_MobParamators.Length; i++)
         {
-            if(string.Equals(tagName, Bonus_MobParamators[i].tagName))
+            if (string.Equals(tagName, Bonus_MobParamators[i].tagName))
             {
                 mobParam = Bonus_MobParamators[i];
                 return mobParam;
