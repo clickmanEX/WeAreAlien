@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 public class CharactorTextContoller : MonoBehaviour
 {
-    public static bool[] MobText = new bool[10];
-
     [SerializeField]
     Text uiText;
 
