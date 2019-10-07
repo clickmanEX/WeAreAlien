@@ -64,7 +64,7 @@ public class MobController : MonoBehaviour
     readonly float BOOST_SPEED_COEF = 10f;
     readonly float BOUND_AMPLITUDE = 1f;
     readonly float BOUND_FREQUENCY = 1f;
-    readonly float ROTATE_SPEED = 2f;
+    readonly float ROTATE_SPEED = 360f;
     // Update is called once per frame
     void Update()
     {

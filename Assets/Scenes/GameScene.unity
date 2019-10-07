@@ -1447,6 +1447,8 @@ MonoBehaviour:
   boostClip: {fileID: 8300000, guid: 9089ed6ef9f5368498b1343b27c0b0b1, type: 3}
   captureClip: {fileID: 8300000, guid: 99cd8406a493d4d4b810aeefa13c7948, type: 3}
   damageClip: {fileID: 8300000, guid: ea9bdfa0796bb734d901df5290f10cfc, type: 3}
+  UFOBodyObj: {fileID: 1353025451}
+  UFOLightObj: {fileID: 2122077203}
 --- !u!65 &806034339
 BoxCollider:
   m_ObjectHideFlags: 0

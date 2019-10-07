@@ -164,8 +164,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30ba880367bd9fd409fcdef35379220b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forwardForce: -10
-  upForce: 300
+  isBoundRun: 1
+  state: 0
 --- !u!136 &136000011639414638
 CapsuleCollider:
   m_ObjectHideFlags: 1

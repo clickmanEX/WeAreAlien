@@ -9,10 +9,12 @@ public class UFOController : MonoBehaviour
     [SerializeField] AudioClip boostClip;
     [SerializeField] AudioClip captureClip;
     [SerializeField] AudioClip damageClip;
+    [SerializeField] GameObject UFOBodyObj;
+    [SerializeField] GameObject UFOLightObj;
 
     Rigidbody myRigidbody;
     float speed = 50.0f;
-    float billForce = 1000.0f;
+    Vector3 lastVelocity; //前フレームの速度
     AudioSource audioSource;
 
     float damageTime;
@@ -84,8 +86,29 @@ public class UFOController : MonoBehaviour
                 audioSource.loop = false;
                 audioSource.Play();
                 damageTime = 0f;
+                PlayUFOFlashingAnim();
+                lastVelocity = Vector3.zero;
                 break;
         }
+    }
+
+    void PlayUFOFlashingAnim()
+    {
+        StartCoroutine(Flashing());
+    }
+
+    readonly float FLASHING_INTARVAL = 0.05f;
+    IEnumerator Flashing()
+    {
+        while (phase == PHASE.DAMAGE)
+        {
+            yield return new WaitForSeconds(FLASHING_INTARVAL);
+            UFOBodyObj.SetActive(!UFOBodyObj.activeSelf);
+            UFOLightObj.SetActive(!UFOLightObj.activeSelf);
+        }
+
+        UFOBodyObj.SetActive(true);
+        UFOLightObj.SetActive(true);
     }
 
     // Update is called once per frame
@@ -98,7 +121,7 @@ public class UFOController : MonoBehaviour
                 ControlUFO();
                 break;
             case PHASE.CAPTURE:
-                myRigidbody.velocity = new Vector3(0, 0, 0);
+                myRigidbody.velocity = new Vector3(0f, 0f, 0f);
                 ScoreManager.Instance.CalcScorePointInSuction();
 #if UNITY_EDITOR
                 if (Input.GetKeyUp(KeyCode.Space))
@@ -117,7 +140,25 @@ public class UFOController : MonoBehaviour
         }
 
         float z = Mathf.Clamp(transform.localPosition.z, MOVE_RANGE_MIN, MOVE_RANGE_MAX);
+        if (z == MOVE_RANGE_MIN || z == MOVE_RANGE_MAX)
+        {
+            myRigidbody.velocity = new Vector3(myRigidbody.velocity.x, myRigidbody.velocity.y, 0f); //行動範囲の縁でZ軸方向の速度が加速し続けないようにするため
+        }
         transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, z);
+    }
+
+    private void LateUpdate()
+    {
+        switch (phase)
+        {
+            case PHASE.MOVE:
+            case PHASE.BOOST:
+                lastVelocity = myRigidbody.velocity;
+                break;
+            case PHASE.CAPTURE:
+            case PHASE.DAMAGE:
+                break;
+        }
     }
 
     void ControlUFO()
@@ -141,30 +182,30 @@ public class UFOController : MonoBehaviour
 
         if (this.myRigidbody.velocity.x <= MOVE_MAX_SPEED)
         {
-            this.myRigidbody.AddForce(moveVector.x * speed, 0, 0);
+            this.myRigidbody.AddForce(moveVector.x * speed, 0f, 0f);
 #if UNITY_EDITOR
             if (Input.GetKey(KeyCode.LeftArrow))
             {
-                this.myRigidbody.AddForce(-speed, 0, 0);
+                this.myRigidbody.AddForce(-speed, 0f, 0f);
             }
             if (Input.GetKey(KeyCode.RightArrow))
             {
-                this.myRigidbody.AddForce(speed, 0, 0);
+                this.myRigidbody.AddForce(speed, 0f, 0f);
             }
 #endif
         }
 
         if (this.myRigidbody.velocity.z <= MOVE_MAX_SPEED)
         {
-            this.myRigidbody.AddForce(0, 0, moveVector.z * speed);
+            this.myRigidbody.AddForce(0f, 0f, moveVector.z * speed);
 #if UNITY_EDITOR
             if (Input.GetKey(KeyCode.UpArrow))
             {
-                this.myRigidbody.AddForce(0, 0, this.speed);
+                this.myRigidbody.AddForce(0f, 0f, this.speed);
             }
             if (Input.GetKey(KeyCode.DownArrow))
             {
-                this.myRigidbody.AddForce(0, 0, -this.speed);
+                this.myRigidbody.AddForce(0f, 0f, -this.speed);
             }
 #endif
         }
@@ -177,7 +218,7 @@ public class UFOController : MonoBehaviour
 #endif
     }
 
-
+    readonly float BILL_FORCE = 1000f;
     void OnCollisionEnter(Collision mob)
     {
         if (phase == PHASE.DAMAGE)
@@ -190,8 +231,9 @@ public class UFOController : MonoBehaviour
             CharactorTextContoller.Instance.SetImpactBillText();
             GameManager.Instance.DamageLife();
             ScoreManager.Instance.CalcScorePointInImpactObject();
-            float Reflectivity = billForce * Mathf.Sign(myRigidbody.velocity.x) * -1f;
-            myRigidbody.AddForce(Reflectivity, 0, 0);
+            myRigidbody.velocity = new Vector3(0f, lastVelocity.y, lastVelocity.z); //z軸方向は男性衝突するように
+            float Reflectivity = BILL_FORCE * Mathf.Sign(lastVelocity.x) * -1f;
+            myRigidbody.AddForce(Reflectivity, 0f, 0f);
             SetPhase(PHASE.DAMAGE);
         }
         else
